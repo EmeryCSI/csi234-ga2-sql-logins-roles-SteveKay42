@@ -1,0 +1,19 @@
+1. Explain the different types of permissions you assigned (SELECT, INSERT, UPDATE, DELETE) and what each allows a user to do.
+    Select allows a user to read data only
+    Insert allows a user to create data (add new rows)
+    Update allows a user to modify data
+    Delete allows a user to remove data (rows)
+
+2. Describe the concept of schema-level permissions vs. table-level permissions.
+    Schema level permissions allow users to read, create, update and delete database objects such as tables, views, and stored procedures. In contrast, table level permissions allow users to read, create, update and delete rows and columns within tables.
+
+3. Explain how column-level permissions work and why they might be useful.
+    Column level permissions work by allowing users to read, create, update and delete columns in a table as needed. For example, payroll needs access to the salary column, but only, perhaps to read it. But HR needs read, write, and delete functionality for employee salaries, such as inputting a new hire or giving bonuses. 
+
+4. Discuss the principle of least privilege and how it's applied in this RBAC setup.
+    Least privilege is the concept of only giving permissions tht are absolutely necessary and not any more than necessary to users. Each user's work requirements are identified and access is given accordingly. This protects sensitive information from those who do not have anything to do it, or bad actors. 
+
+    Least privilege is applied here by plenty of column level permissions by department, for example, IT not having access to salary, as well as HR being given schema level permissions. 
+
+5. Explain the potential security benefits of using roles instead of assigning permissions directly to users.
+    Roles are more secure than assigning permissions directly to users because there might be many permission paths to an object. If you instead assign roles, much like with classes, interfaces, schemas in MongoDB, etc, permissions are uniformly enforced, much like a blueprint for access. Also makes permissions easily tracked, instead of having to check each user for what permissions they may or may not have. Just check the role they are assigned to.

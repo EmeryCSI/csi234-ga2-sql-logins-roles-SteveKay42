@@ -95,3 +95,75 @@ ALTER ROLE HRRole ADD MEMBER HRManagerUser;
 ALTER ROLE SalesRole ADD MEMBER SalesRepUser;
 ALTER ROLE ITRole ADD MEMBER ITSupportUser;
 GO
+
+
+-- Column-level permissions allow for more granular control over data access
+
+-- DENY: Explicitly prevents a security principal from performing an action
+-- This ensures that SalesRole cannot view salary information
+DENY SELECT ON GA1.EmployeeData(Salary) TO SalesRole;
+
+-- Grant UPDATE permission on specific columns for ITRole
+-- This allows IT to update employee information except for salary
+GRANT UPDATE ON GA1.EmployeeData(FirstName, LastName, Department) TO ITRole;
+DENY UPDATE ON GA1.EmployeeData(Salary) TO ITRole;
+GO
+
+
+-- Part 4: Testing User Access
+
+-- EXECUTE AS: This command allows us to switch context to a different user
+-- This simulates logging in as the HR Manager
+EXECUTE AS USER = 'HRManagerUser';
+
+-- HR should have full access to the employee data
+SELECT *
+FROM GA1.EmployeeData;
+
+-- HR should be able to insert new employee records
+INSERT INTO GA1.EmployeeData
+    (EmployeeID, FirstName, LastName, Salary, Department)
+VALUES
+    (5, 'Eva', 'Brown', 70000.00, 'Marketing');
+
+-- Check to see the new user is added
+SELECT *
+FROM GA1.EmployeeData;
+
+-- REVERT: This command switches back to our original user context
+REVERT;
+GO
+
+
+-- Switch to the Sales Representative user context
+EXECUTE AS USER = 'SalesRepUser';
+
+-- Sales should be able to view employee data, but not salary information
+SELECT *
+FROM GA1.EmployeeData;
+
+-- This insert should fail because SalesRole only has SELECT permission
+INSERT INTO GA1.EmployeeData
+    (EmployeeID, FirstName, LastName, Salary, Department)
+VALUES
+    (6, 'Mike', 'Davis', 52000.00, 'Sales');
+
+REVERT;
+GO
+
+
+-- Switch to the IT Support user context
+EXECUTE AS USER = 'ITSupportUser';
+
+-- IT should be able to view all employee data
+SELECT *
+FROM GA1.EmployeeData;
+
+-- This update should succeed (updating department)
+UPDATE GA1.EmployeeData SET Department = 'IT Support' WHERE EmployeeID = 3;
+
+-- This update should fail (attempting to update salary)
+UPDATE GA1.EmployeeData SET Salary = 58000.00 WHERE EmployeeID = 3;
+
+REVERT;
+GO
